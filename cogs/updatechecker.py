@@ -27,7 +27,13 @@ class UpdateChecker(commands.Cog):
 
     @commands.command()
     async def checkUpdateLoop(self, ctx):
-        await ctx.send(f"UpdateLoop running status: {self.started}")
+        message  = f"UpdateLoop running status: {self.started}"
+        message += f"\n - Latest Firefox: {self.config['UpdateChecker']['firefox_latest']}"
+        message += f"\n - Latest Chrome: {self.config['UpdateChecker']['chrome_latest']}"
+        message += f"\n - Latest Office: {self.config['UpdateChecker']['office_latest']}"
+        await ctx.send(message)
+        
+        
 
     @tasks.loop(seconds=5.0)
     async def updater_loop(self):

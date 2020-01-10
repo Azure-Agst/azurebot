@@ -79,7 +79,7 @@ class AzureBot(commands.Bot):
 
         # display failed cogs
         if len(self.failed_cogs) != 0:
-            print("\nSome addons failed to load:")
+            print("Some addons failed to load:")
             for f in self.failed_cogs:
                 print("{}: `{}: {}`".format(*f))
             print()
