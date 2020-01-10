@@ -54,7 +54,7 @@ class AzureBot(commands.Bot):
         print("Done!\n")
 
     async def on_ready(self):
-        print(f'We have logged in as {self.user}')
+        print(f'We have logged in as {self.user}\n')
 
         # set startup status
         activity = Game(name=self.config['AzureBot']['Status'])
@@ -68,8 +68,14 @@ class AzureBot(commands.Bot):
             await azure.dm_channel.send(f"Azurebot started at {datetime.now()}")
 
         # start all loops
-        # NOTE: I'll make this dynamic later
-        self.get_cog("UpdateChecker").startUpdaterLoop()
+        print("Starting loops...")
+        for cogname in self.cogs:
+            cog = self.get_cog(cogname)
+            if hasattr(cog, 'start_loop'):
+                cog.start_loop()
+                print(f"{cog.__class__.__name__}'s loop has started!")
+        print("Done!\n")
+
 
         # display failed cogs
         if len(self.failed_cogs) != 0:

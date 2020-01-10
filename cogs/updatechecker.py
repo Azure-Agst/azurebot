@@ -16,7 +16,7 @@ class UpdateChecker(commands.Cog):
         self.started = False
         print(f'Cog "{self.qualified_name}" loaded!')
 
-    def startUpdaterLoop(self):
+    def start_loop(self):
         # Start updater loop
         if self.started is False:
             self.updater_loop.start()
@@ -24,6 +24,10 @@ class UpdateChecker(commands.Cog):
 
     def cog_unload(self):
         self.updater_loop.cancel()
+
+    @commands.command()
+    async def checkUpdateLoop(self, ctx):
+        await ctx.send(f"UpdateLoop running status: {self.started}")
 
     @tasks.loop(seconds=5.0)
     async def updater_loop(self):
