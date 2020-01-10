@@ -46,7 +46,7 @@ class UpdateChecker(commands.Cog):
         # Check against saved version
         if version != self.config['UpdateChecker']['firefox_latest']:
             print("Firefox update detected!")
-            azure = await self.fetch_user(self.azure_id)
+            azure = await self.bot.fetch_user(self.azure_id)
             await azure.dm_channel.send(f"Firefox update detected! New version {version} released!")
             self.config['UpdateChecker']['firefox_latest'] = version
             self.u_saveConfig()
@@ -67,7 +67,7 @@ class UpdateChecker(commands.Cog):
         # Check against saved version
         if version != self.config['UpdateChecker']['chrome_latest']:
             print("Chrome update detected!")
-            azure = await self.fetch_user(self.azure_id)
+            azure = await self.bot.fetch_user(self.azure_id)
             await azure.dm_channel.send(f"Chrome update detected! New version {version} released!")
             self.config['UpdateChecker']['chrome_latest'] = version
             self.u_saveConfig()
@@ -85,7 +85,7 @@ class UpdateChecker(commands.Cog):
         # Check against saved version
         if version != self.config['UpdateChecker']['office_latest']:
             print("Office update detected!")
-            azure = await self.fetch_user(self.azure_id)
+            azure = await self.bot.fetch_user(self.azure_id)
             await azure.dm_channel.send(f"Office update detected! New version {version} released!")
             self.config['UpdateChecker']['office_latest'] = version
             self.u_saveConfig()
