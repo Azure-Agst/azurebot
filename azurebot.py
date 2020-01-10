@@ -67,6 +67,10 @@ class AzureBot(commands.Bot):
         if not dev:
             await azure.dm_channel.send(f"Azurebot started at {datetime.now()}")
 
+        # start all loops
+        # NOTE: I'll make this dynamic later
+        self.get_cog("UpdateChecker").startUpdaterLoop()
+
         # display failed cogs
         if len(self.failed_cogs) != 0:
             print("\nSome addons failed to load:")

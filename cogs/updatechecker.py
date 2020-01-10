@@ -13,10 +13,14 @@ class UpdateChecker(commands.Cog):
         self.bot = bot
         self.config = bot.config
         self.azure_id = 337437436680339457
+        self.started = False
         print(f'Cog "{self.qualified_name}" loaded!')
 
+    def startUpdaterLoop(self):
         # Start updater loop
-        self.updater_loop.start()
+        if self.started is False:
+            self.updater_loop.start()
+            self.started = True
 
     def cog_unload(self):
         self.updater_loop.cancel()
