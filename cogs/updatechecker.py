@@ -34,7 +34,8 @@ class UpdateChecker(commands.Cog):
         reply += f"\n - Latest Firefox: {self.config['UpdateChecker']['firefox_latest']}"
         reply += f"\n - Latest Chrome: {self.config['UpdateChecker']['chrome_latest']}"
         reply += f"\n - Latest Office: {self.config['UpdateChecker']['office_latest']}"
-        reply += f"\n - Latest Windows: {self.config['UpdateChecker']['office_latest']}"
+        reply += f"\n - Latest Windows 1909: {self.config['UpdateChecker']['windows_1909_latest']}"
+        reply += f"\n - Latest Windows 1809: {self.config['UpdateChecker']['windows_1809_latest']}"
         await ctx.send(reply)
 
 
