@@ -2,6 +2,7 @@ import json
 import requests
 from discord.ext import tasks, commands
 from bs4 import BeautifulSoup
+from lxml import html
 
 
 class UpdateChecker(commands.Cog):
@@ -27,13 +28,13 @@ class UpdateChecker(commands.Cog):
 
     @commands.command()
     async def checkUpdateLoop(self, ctx):
-        message  = f"UpdateLoop running status: {self.started}"
+        message = f"UpdateLoop running status: {self.started}"
         message += f"\n - Latest Firefox: {self.config['UpdateChecker']['firefox_latest']}"
         message += f"\n - Latest Chrome: {self.config['UpdateChecker']['chrome_latest']}"
         message += f"\n - Latest Office: {self.config['UpdateChecker']['office_latest']}"
+        message += f"\n - Latest Windows: {self.config['UpdateChecker']['office_latest']}"
         await ctx.send(message)
-        
-        
+
 
     @tasks.loop(seconds=5.0)
     async def updater_loop(self):
@@ -47,6 +48,9 @@ class UpdateChecker(commands.Cog):
 
         # Check Office
         await self.u_getOfficeVersion()
+
+        # Check Windows
+        await self.u_getWindowsVersion()
 
 
     async def u_getFirefoxVersion(self):
@@ -87,7 +91,8 @@ class UpdateChecker(commands.Cog):
             self.u_saveConfig()
 
     async def u_getOfficeVersion(self):
-        """ Function to check for Office updates """
+        """ Function to check for Microsoft Office updates """
+
         page = requests.get('https://macadmins.software/latest.xml').content
         pagedata = BeautifulSoup(page, "xml")
         id_arr = pagedata.find_all('id')
@@ -102,6 +107,25 @@ class UpdateChecker(commands.Cog):
             azure = await self.bot.fetch_user(self.azure_id)
             await azure.dm_channel.send(f"Office update detected! New version {version} released!")
             self.config['UpdateChecker']['office_latest'] = version
+            self.u_saveConfig()
+
+    async def u_getWindowsVersion(self):
+        """ Function to check for Microsoft Windows updates """
+
+        # Get Release Notes Page
+        page = requests.get('https://winreleaseinfoprod.blob.core.windows.net/winreleaseinfoprod/en-US.html').content
+        root = html.fromstring(page)
+        # For some reason, lxml tosses out <tbody> elements when parsing. odd.
+        build = root.xpath("/html/body/div/table[1]/tr[2]/td[4]")[0].text_content()
+        kb_article = root.xpath("/html/body/div/table[3]/tr[2]/td[4]")[0].text_content()
+        version = build + ", " + kb_article
+
+        # Check against saved version
+        if version != self.config['UpdateChecker']['windows_1909_latest']:
+            print("Windows 1909 update detected!")
+            azure = await self.bot.fetch_user(self.azure_id)
+            await azure.dm_channel.send(f"Windows 1909 update detected! New build {build} ({kb_article}) released!")
+            self.config['UpdateChecker']['windows_1909_latest'] = version
             self.u_saveConfig()
 
     def u_saveConfig(self):
