@@ -15,6 +15,7 @@ class UpdateChecker(commands.Cog):
         self.config = bot.config
         self.azure_id = 337437436680339457
         self.started = False
+        self.message = ""
         print(f'Cog "{self.qualified_name}" loaded!')
 
     def start_loop(self):
@@ -28,12 +29,12 @@ class UpdateChecker(commands.Cog):
 
     @commands.command()
     async def checkUpdateLoop(self, ctx):
-        message = f"UpdateLoop running status: {self.started}"
-        message += f"\n - Latest Firefox: {self.config['UpdateChecker']['firefox_latest']}"
-        message += f"\n - Latest Chrome: {self.config['UpdateChecker']['chrome_latest']}"
-        message += f"\n - Latest Office: {self.config['UpdateChecker']['office_latest']}"
-        message += f"\n - Latest Windows: {self.config['UpdateChecker']['office_latest']}"
-        await ctx.send(message)
+        reply = f"UpdateLoop running status: {self.started}"
+        reply += f"\n - Latest Firefox: {self.config['UpdateChecker']['firefox_latest']}"
+        reply += f"\n - Latest Chrome: {self.config['UpdateChecker']['chrome_latest']}"
+        reply += f"\n - Latest Office: {self.config['UpdateChecker']['office_latest']}"
+        reply += f"\n - Latest Windows: {self.config['UpdateChecker']['office_latest']}"
+        await ctx.send(reply)
 
 
     @tasks.loop(seconds=5.0)
@@ -52,6 +53,11 @@ class UpdateChecker(commands.Cog):
         # Check Windows
         await self.u_getWindowsVersions()
 
+        # If there's contents, send in one digest
+        if self.message != "":
+            azure = await self.bot.fetch_user(self.azure_id)
+            await azure.dm_channel.send(self.message)
+            self.message = ""
 
     async def u_getFirefoxVersion(self):
         """ Function to check for Firefox updates. """
@@ -64,8 +70,7 @@ class UpdateChecker(commands.Cog):
         # Check against saved version
         if version != self.config['UpdateChecker']['firefox_latest']:
             print("Firefox update detected!")
-            azure = await self.bot.fetch_user(self.azure_id)
-            await azure.dm_channel.send(f"Firefox update detected! New version {version} released!")
+            self.message += f"Firefox update detected! New version {version} released!\n"
             self.config['UpdateChecker']['firefox_latest'] = version
             self.u_saveConfig()
 
@@ -85,8 +90,7 @@ class UpdateChecker(commands.Cog):
         # Check against saved version
         if version != self.config['UpdateChecker']['chrome_latest']:
             print("Chrome update detected!")
-            azure = await self.bot.fetch_user(self.azure_id)
-            await azure.dm_channel.send(f"Chrome update detected! New version {version} released!")
+            self.message += f"Chrome update detected! New version {version} released!\n"
             self.config['UpdateChecker']['chrome_latest'] = version
             self.u_saveConfig()
 
@@ -104,8 +108,7 @@ class UpdateChecker(commands.Cog):
         # Check against saved version
         if version != self.config['UpdateChecker']['office_latest']:
             print("Office update detected!")
-            azure = await self.bot.fetch_user(self.azure_id)
-            await azure.dm_channel.send(f"Office update detected! New version {version} released!")
+            self.message += f"Office update detected! New version {version} released!\n"
             self.config['UpdateChecker']['office_latest'] = version
             self.u_saveConfig()
 
@@ -127,38 +130,15 @@ class UpdateChecker(commands.Cog):
                 # kb_article_1809 = root.xpath(f"/html/body/div/table[3]/tr[2]/td[4]")[0].text_content()
 
         # Check against saved versions
-        message = ""
         if build_1909 != self.config['UpdateChecker']['windows_1909_latest']:
             print("Windows 1909 update detected!")
-            message += f"Windows 1909 update detected! New build {build_1909} released!\n"
+            self.message += f"Windows 1909 update detected! New build {build_1909} released!\n"
             self.config['UpdateChecker']['windows_1909_latest'] = build_1909
             self.u_saveConfig()
         if build_1809 != self.config['UpdateChecker']['windows_1809_latest']:
             print("Windows 1809 update detected!")
-            message += f"Windows 1809 update detected! New build {build_1809} released!\n"
+            self.message += f"Windows 1809 update detected! New build {build_1809} released!\n"
             self.config['UpdateChecker']['windows_1809_latest'] = build_1809
-            self.u_saveConfig()
-        if message != "":
-            azure = await self.bot.fetch_user(self.azure_id)
-            await azure.dm_channel.send(message)
-
-    async def u_getWindows1809Version(self):
-        """ Function to check for Microsoft Windows 1809 updates """
-
-        # Get Release Notes Page
-        page = requests.get('https://winreleaseinfoprod.blob.core.windows.net/winreleaseinfoprod/en-US.html').content
-        root = html.fromstring(page)
-        # See reason above for weird error parsing tbody
-        build = root.xpath("/html/body/div/table[1]/tr[4]/td[4]")[0].text_content()
-        kb_article = root.xpath("/html/body/div/table[5]/tr[2]/td[4]")[0].text_content()
-        version = build + ", " + kb_article
-
-        # Check against saved version
-        if version != self.config['UpdateChecker']['windows_1809_latest']:
-            print("Windows 1809 update detected!")
-            azure = await self.bot.fetch_user(self.azure_id)
-            await azure.dm_channel.send(f"Windows 1809 update detected! New build {build} ({kb_article}) released!")
-            self.config['UpdateChecker']['windows_1809_latest'] = version
             self.u_saveConfig()
 
     def u_saveConfig(self):
