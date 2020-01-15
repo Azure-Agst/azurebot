@@ -7,7 +7,7 @@ from os import walk
 
 
 azure_id = 337437436680339457
-dev = True
+dev = False
 
 
 class AzureBot(commands.Bot):
