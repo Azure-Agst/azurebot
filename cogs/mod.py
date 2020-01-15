@@ -10,14 +10,14 @@ class Mod(commands.Cog):
         print(f'Cog "{self.qualified_name}" loaded!')
 
     @is_azure()
-    @commands.command()
+    @commands.command(hidden=True)
     async def reload(self, ctx):
         """Reload Bot."""
         await ctx.send("Reloading...")
         await self.bot.close()
 
     @is_azure()
-    @commands.command()
+    @commands.command(hidden=True)
     async def pull(self, ctx):
         """Pull new changes from GitHub and restart."""
         await ctx.send("Pulling changes...")
@@ -28,6 +28,12 @@ class Mod(commands.Cog):
             head = check_output(["git", "log", "--pretty=format:'%h'", "-n 1"]).decode("UTF-8")
             await ctx.send(f"Updated to version {head}!\nRestarting...")
             await self.bot.close()
+
+    @commands.command()
+    async def version(self, ctx):
+        """Get version of the bot and (c) info"""
+        head = check_output(["git", "log", "--pretty=format:'%h'", "-n 1"]).decode("UTF-8")
+        await ctx.send(f"Azurebot.py, Build {head}\nCopyright (c) 2020 Azure_Agst")
 
 
 def setup(bot):

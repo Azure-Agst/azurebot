@@ -29,6 +29,7 @@ class UpdateChecker(commands.Cog):
 
     @commands.command()
     async def checkUpdateLoop(self, ctx):
+        """View UpdateChecker loop/Get current versions."""
         reply = f"UpdateLoop running status: {self.started}"
         reply += f"\n - Latest Firefox: {self.config['UpdateChecker']['firefox_latest']}"
         reply += f"\n - Latest Chrome: {self.config['UpdateChecker']['chrome_latest']}"

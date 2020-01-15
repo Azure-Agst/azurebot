@@ -9,9 +9,10 @@ class Commands(commands.Cog):
         self.config = bot.config
         print(f'Cog "{self.qualified_name}" loaded!')
 
-    @commands.command()
     @is_azure()
+    @commands.command(hidden=True)
     async def status(self, ctx, *, new_status):
+        """Change the status of the bot."""
         new_game = Game(name=new_status)
         await self.bot.change_presence(activity=new_game)
         self.config['AzureBot']['Status'] = new_status
