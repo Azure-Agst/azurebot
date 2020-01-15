@@ -50,7 +50,7 @@ class UpdateChecker(commands.Cog):
         await self.u_getOfficeVersion()
 
         # Check Windows
-        await self.u_getWindowsVersion()
+        await self.u_getWindowsVersions()
 
 
     async def u_getFirefoxVersion(self):
@@ -109,23 +109,56 @@ class UpdateChecker(commands.Cog):
             self.config['UpdateChecker']['office_latest'] = version
             self.u_saveConfig()
 
-    async def u_getWindowsVersion(self):
-        """ Function to check for Microsoft Windows updates """
+    async def u_getWindowsVersions(self):
+        """ Function to check for Microsoft Windows 1909/1809-LTSC updates """
 
         # Get Release Notes Page
         page = requests.get('https://winreleaseinfoprod.blob.core.windows.net/winreleaseinfoprod/en-US.html').content
         root = html.fromstring(page)
+
         # For some reason, lxml tosses out <tbody> elements when parsing. odd.
-        build = root.xpath("/html/body/div/table[1]/tr[2]/td[4]")[0].text_content()
-        kb_article = root.xpath("/html/body/div/table[3]/tr[2]/td[4]")[0].text_content()
+        for i in range(len(root.xpath("/html/body/div/table[1]")[0]) - 2):
+            release_num = root.xpath(f"/html/body/div/table[1]/tr[{i+2}]/td[1]")[0].text_content()
+            if release_num == "1909":
+                build_1909 = root.xpath(f"/html/body/div/table[1]/tr[{i+2}]/td[4]")[0].text_content()
+                # kb_article_1909 = root.xpath(f"/html/body/div/table[3]/tr[{i+2}]/td[4]")[0].text_content()
+            elif release_num == "1809":
+                build_1809 = root.xpath(f"/html/body/div/table[1]/tr[{i+2}]/td[4]")[0].text_content()
+                # kb_article_1809 = root.xpath(f"/html/body/div/table[3]/tr[2]/td[4]")[0].text_content()
+
+        # Check against saved versions
+        message = ""
+        if build_1909 != self.config['UpdateChecker']['windows_1909_latest']:
+            print("Windows 1909 update detected!")
+            message += f"Windows 1909 update detected! New build {build_1909} released!\n"
+            self.config['UpdateChecker']['windows_1909_latest'] = build_1909
+            self.u_saveConfig()
+        if build_1809 != self.config['UpdateChecker']['windows_1809_latest']:
+            print("Windows 1809 update detected!")
+            message += f"Windows 1809 update detected! New build {build_1809} released!\n"
+            self.config['UpdateChecker']['windows_1809_latest'] = build_1809
+            self.u_saveConfig()
+        if message != "":
+            azure = await self.bot.fetch_user(self.azure_id)
+            await azure.dm_channel.send(message)
+
+    async def u_getWindows1809Version(self):
+        """ Function to check for Microsoft Windows 1809 updates """
+
+        # Get Release Notes Page
+        page = requests.get('https://winreleaseinfoprod.blob.core.windows.net/winreleaseinfoprod/en-US.html').content
+        root = html.fromstring(page)
+        # See reason above for weird error parsing tbody
+        build = root.xpath("/html/body/div/table[1]/tr[4]/td[4]")[0].text_content()
+        kb_article = root.xpath("/html/body/div/table[5]/tr[2]/td[4]")[0].text_content()
         version = build + ", " + kb_article
 
         # Check against saved version
-        if version != self.config['UpdateChecker']['windows_1909_latest']:
-            print("Windows 1909 update detected!")
+        if version != self.config['UpdateChecker']['windows_1809_latest']:
+            print("Windows 1809 update detected!")
             azure = await self.bot.fetch_user(self.azure_id)
-            await azure.dm_channel.send(f"Windows 1909 update detected! New build {build} ({kb_article}) released!")
-            self.config['UpdateChecker']['windows_1909_latest'] = version
+            await azure.dm_channel.send(f"Windows 1809 update detected! New build {build} ({kb_article}) released!")
+            self.config['UpdateChecker']['windows_1809_latest'] = version
             self.u_saveConfig()
 
     def u_saveConfig(self):
