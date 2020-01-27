@@ -39,7 +39,7 @@ class UpdateChecker(commands.Cog):
         await ctx.send(reply)
 
 
-    @tasks.loop(seconds=5.0)
+    @tasks.loop(seconds=300.0)
     async def updater_loop(self):
         """Main loop to check for software updates."""
 
