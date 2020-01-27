@@ -7,7 +7,7 @@ class Remind(commands.Cog):
         self.bot = bot
         self.config = bot.config
         self.azure_id = 337437436680339457
-        self.target = datetime.datetime(2020, 1, 27, 0, 0)  # YY,MM,DD,HH,mm
+        self.target = datetime.datetime(2020, 1, 27, 6, 50)  # YY,MM,DD,HH,mm
         print(f'Cog "{self.qualified_name}" loaded!')
 
     def start_loop(self):
