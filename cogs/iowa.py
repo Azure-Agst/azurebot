@@ -15,7 +15,8 @@ class Iowa(commands.Cog):
         self.config = bot.config
         self.azure_id = 337437436680339457
         self.started = False
-        self.config['iowa'] = {}
+        if self.config['iowa'] is None:
+            self.config['iowa'] = {}
         print(f'Cog "{self.qualified_name}" loaded!')
         with open('config.ini', 'w') as configfile:
             self.config.write(configfile)
