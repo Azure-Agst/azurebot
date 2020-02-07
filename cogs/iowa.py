@@ -17,11 +17,13 @@ class Iowa(commands.Cog):
         self.started = False
         self.config['iowa'] = {}
         print(f'Cog "{self.qualified_name}" loaded!')
+        with open('config.ini', 'w') as configfile:
+            self.config.write(configfile)
 
     def start_loop(self):
         # Start updater loop
         if self.started is False:
-            self.iowa.start()
+            self.iowa_loop.start()
             self.started = True
 
     def cog_unload(self):

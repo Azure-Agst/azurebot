@@ -92,9 +92,15 @@ class AzureBot(commands.Bot):
 
 # run it
 def main():
-    bot = AzureBot("a!", "Azure's Custom Bot!")
-    bot.load_cogs()
-    bot.run(open("key.txt", "r").read())
+    try:
+        bot = AzureBot("a!", "Azure's Custom Bot!")
+        bot.load_cogs()
+        bot.run(open("key.txt", "r").read())
+        return 0
+    except:
+        t, v, tb  = sys.exc_info()
+        print(f"Error: {t}, {v}\nFrame: {tb.tb_frame}")
+        return 1
 
 
 if __name__ == '__main__':
